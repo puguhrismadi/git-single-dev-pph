@@ -1,8 +1,8 @@
 from fastapi import FastAPI, Depends
 from sqlalchemy.orm import Session
-from database import SessionLocal, engine
-import models
-from crud import calculate_pph
+from app.database import SessionLocal, engine
+from app import models
+from app.crud import calculate_pph
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -21,7 +21,9 @@ def register_employee(name: str, npwp: str, salary: float, db: Session = Depends
     db.add(emp)
     db.commit()
     return {"status": "ok", "message": "Karyawan terdaftar"}
-
+@app.get("/employees")
+def get_employees(db: Session = Depends(get_db)):
+    return db.query(models.Employee).all()
 @app.get("/calculate/{employee_id}")
 def calculate_tax(employee_id: int, db: Session = Depends(get_db)):
     emp = db.query(models.Employee).get(employee_id)
