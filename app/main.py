@@ -3,7 +3,8 @@ from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine
 from app import models
 from app.crud import calculate_pph
-
+from app.services.tax_rules_srv import create_tax_rule
+from app.schemas import TaxRuleCreate
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="API Perhitungan PPh Karyawan")
@@ -40,7 +41,18 @@ def calculate_tax(employee_id: int, db: Session = Depends(get_db)):
     tax = calculate_pph(emp.salary, rules)
     return {"nama": emp.name, "pph": tax}
 
-@app.post("/tax_rule")
-def insert_tax_rule(min_income: float, max_income: float, rate: float, db: Session = Depends(get_db)):
-    insert_tax_rule(db, min_income, max_income, rate)
-    return {"status": "ok", "message": "Pajak terdaftar"}
+@app.post("/tax_rule", status_code=201)
+def insert_tax_rule(
+    payload: TaxRuleCreate,
+    db: Session = Depends(get_db)
+):
+    create_tax_rule(
+        db,
+        payload.min_income,
+        payload.max_income,
+        payload.rate
+    )
+    return {
+        "status": "ok",
+        "message": "Pajak terdaftar"
+    }
