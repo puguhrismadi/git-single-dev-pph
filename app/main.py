@@ -39,3 +39,8 @@ def calculate_tax(employee_id: int, db: Session = Depends(get_db)):
     rules = db.query(models.TaxRule).all()
     tax = calculate_pph(emp.salary, rules)
     return {"nama": emp.name, "pph": tax}
+
+@app.post("/tax_rule")
+def insert_tax_rule(min_income: float, max_income: float, rate: float, db: Session = Depends(get_db)):
+    insert_tax_rule(db, min_income, max_income, rate)
+    return {"status": "ok", "message": "Pajak terdaftar"}
