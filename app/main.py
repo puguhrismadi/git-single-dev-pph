@@ -24,6 +24,15 @@ def register_employee(name: str, npwp: str, salary: float, db: Session = Depends
 @app.get("/employees")
 def get_employees(db: Session = Depends(get_db)):
     return db.query(models.Employee).all()
+
+@app.put("/employee/{employee_id}")
+def update_employee(employee_id: int, name: str, npwp: str, salary: float, db: Session = Depends(get_db)):
+    emp = db.query(models.Employee).get(employee_id)
+    emp.name = name
+    emp.npwp = npwp 
+    emp.salary = salary
+    db.commit()
+    return {"status": "ok", "message": "Karyawan terupdate"}
 @app.get("/calculate/{employee_id}")
 def calculate_tax(employee_id: int, db: Session = Depends(get_db)):
     emp = db.query(models.Employee).get(employee_id)
